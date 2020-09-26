@@ -1,3 +1,4 @@
+/* eslint-disable no-dupe-args */
 import Transaction from '../models/Transaction';
 
 interface Balance {
@@ -14,15 +15,44 @@ class TransactionsRepository {
   }
 
   public all(): Transaction[] {
-    // TODO
+    return this.transactions;
   }
 
   public getBalance(): Balance {
-    // TODO
+    const balance = this.transactions.reduce(
+      (accumulator, transaction) => {
+        if (transaction.type === 'income') {
+          accumulator.income += transaction.value;
+          accumulator.total += transaction.value;
+        } else {
+          accumulator.outcome += transaction.value;
+          accumulator.total -= transaction.value;
+        }
+
+        return accumulator;
+      },
+      {
+        income: 0,
+        outcome: 0,
+        total: 0,
+      },
+    );
+
+    return balance;
   }
 
-  public create(): Transaction {
-    // TODO
+  public create({
+    title,
+    type,
+    value,
+  }: {
+    title: string;
+    type: 'income' | 'outcome';
+    value: number;
+  }): Transaction {
+    const transaction = new Transaction({ title, type, value });
+    this.transactions.push(transaction);
+    return transaction;
   }
 }
 
